@@ -93,9 +93,11 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems }) => {
             {adverbs.length!=0?<View style={styles.wordCard}>
                 <View style={styles.wordMains}>
                     <Text style={styles.wordMain}>Adverbs : </Text>
+                    <Text style={styles.wordMain}>
                     {adverbs.map((m, index) => 
-                        <Text style={styles.wordMain} key={index}>{m.mean}{index < adverbs.length - 1 ? ',' : ''}</Text>
+                        <>{m.mean}{index < adverbs.length - 1 ? ',' : ''}</>
                     )}
+                    </Text>
                 </View>
             </View>:<></>}
             
@@ -103,9 +105,11 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems }) => {
             <View style={styles.wordCard}>
                 <View style={styles.wordMains}>
                     <Text style={styles.wordMain}>Noun : </Text>
+                    <Text style={styles.wordMain}>
                     {nouns.map((m, index) => 
-                        <Text style={styles.wordMain} key={index}>{m.mean}{index < nouns.length - 1 ? ',' : ''}</Text>
+                        <>{m.mean}{index < nouns.length - 1 ? ',' : ''}</>
                     )}
+                    </Text>
                 </View>
             </View>
             :<></>}
@@ -114,9 +118,11 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems }) => {
             <View style={styles.wordCard}>
                 <View style={styles.wordMains}>
                     <Text style={styles.wordMain}>Adjective : </Text>
+                    <Text style={styles.wordMain}>
                     {adjectives.map((m, index) => 
-                        <Text style={styles.wordMain} key={index}>{m.mean}{index < adjectives.length - 1 ? ',' : ''}</Text>
+                        <>{m.mean}{index < adjectives.length - 1 ? ',' : ''}</>
                     )}
+                    </Text>
                 </View>
             </View>
              :<></>}
@@ -126,9 +132,11 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems }) => {
             <View style={styles.wordCard}>
                 <View style={styles.wordMains}>
                     <Text style={styles.wordMain}>Pronoun : </Text>
+                    <Text style={styles.wordMain}>
                     {pronouns.map((m, index) => 
-                        <Text style={styles.wordMain} key={index}>{m.mean}{index < pronouns.length - 1 ? ',' : ''}</Text>
+                        <>{m.mean}{index < pronouns.length - 1 ? ',' : ''}</>
                     )}
+                    </Text>
                 </View>
             </View>
             :<></>}
@@ -137,9 +145,11 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems }) => {
             <View style={styles.wordCard}>
                 <View style={styles.wordMains}>
                     <Text style={styles.wordMain}>Verb : </Text>
+                    <Text style={styles.wordMain} >
                     {verbs.map((m, index) => 
-                        <Text style={styles.wordMain} key={index}>{m.mean}{index < verbs.length - 1 ? ',' : ''}</Text>
+                        <>{m.mean}{index < verbs.length - 1 ? ',' : ''}</>
                     )}
+                    </Text>
                 </View>
             </View>
             :<></>}
