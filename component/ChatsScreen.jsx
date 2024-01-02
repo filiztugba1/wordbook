@@ -4,6 +4,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import { Image } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; // FontAwesome eklenen kütüphanenin ismi
 import AddItemFormComponent from './AddItemFormComponent'; // AddItem component'ının olduğu dosya yolu
+import AddGroupFormComponent from './AddGroupFormComponent'; // AddItem component'ının olduğu dosya yolu
 import WorkItem from './WorkItem'; // AddItem component'ının olduğu dosya yolu
 import * as Speech from 'expo-speech';
 
@@ -193,7 +194,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                 >
                     <View style={styles.buttonContent}>
                         <Ionicons name="add" size={24} color="green" />
-                        <Text style={styles.addItemText}>Yeni Ekle</Text>
+                        <Text style={styles.addItemText}>Yeni Kart Ekle</Text>
                     </View>
                 </TouchableOpacity>
             <WorkItem onAddItem={handleAddItem} />
@@ -213,7 +214,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
 
                 <TouchableOpacity
                     style={styles.addItemButton}
-                    onPress={() => setisPageType(1)}
+                    onPress={() => setisPageType(2)}
                 >
                     <View style={styles.buttonContent}>
                         <Ionicons name="document" size={24} color="blue" />
@@ -222,8 +223,35 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                 </TouchableOpacity>
             </>:<></>}
 
+            {isPageType==2?
+                <>
+                <TouchableOpacity
+                    style={styles.addItemButton}
+                    onPress={() => setisPageType(0)}
+                >
+                    <View style={styles.buttonContent}>
+                        <Ionicons name="list" size={24} color="green" />
+                        <Text style={styles.addItemText}>Tüm Kart Listesi</Text>
+                    </View>
+                </TouchableOpacity>
+
+                <>
+                <TouchableOpacity
+                    style={styles.addItemButton}
+                    onPress={() => setisPageType(1)}
+                >
+                    <View style={styles.buttonContent}>
+                        <Ionicons name="add" size={24} color="green" />
+                        <Text style={styles.addItemText}>Yeni Kart Ekle</Text>
+                    </View>
+                </TouchableOpacity>
+            </>
+            </>:<></>}
+
+
         </View>
         {isPageType==1?<AddItemFormComponent/>:<></>}
+        {isPageType==2?<AddGroupFormComponent/>:<></>}
         {isPageType==0? <FlatList
             data={chats}
             renderItem={({ item }) => (
