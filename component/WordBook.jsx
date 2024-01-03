@@ -86,7 +86,7 @@ const WordBook = () => {
                         ),
                         headerTintColor: '#fff',
                         headerStyle: {
-                            backgroundColor: '#0077B6'
+                            backgroundColor: '#0077B6',
                         },
                         headerRight: () => (
                             <>
