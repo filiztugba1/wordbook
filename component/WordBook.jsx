@@ -127,16 +127,16 @@ const WordBook = () => {
 
         return (
             <View style={styles.dropdown}>
-                <TouchableOpacity onPress={() => { /* Yeni grup işlemleri... */ onClose(); }}>
+                <TouchableOpacity onPress={() => onClose()}>
                     <Text style={styles.dropdownItem}>Kart Grupları</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { /* Yeni topluluk işlemleri... */ onClose(); }}>
+                <TouchableOpacity onPress={() => onClose()}>
                     <Text style={styles.dropdownItem}>Tüm Kartlar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { /* Yeni topluluk işlemleri... */ onClose(); }}>
+                <TouchableOpacity onPress={() => onClose()}>
                     <Text style={styles.dropdownItem}>Grammer Notlarım</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { /* Yeni topluluk işlemleri... */ onClose(); }}>
+                <TouchableOpacity onPress={() => onClose()}>
                     <Text style={styles.dropdownItem}>Günlük Yazılarım</Text>
                 </TouchableOpacity>
             </View>
