@@ -7,6 +7,7 @@ import AddItemFormComponent from './AddItemFormComponent'; // AddItem component'
 import AddGroupFormComponent from './AddGroupFormComponent'; // AddItem component'ının olduğu dosya yolu
 // import WorkItem from './WorkItem'; // AddItem component'ının olduğu dosya yolu
 import * as Speech from 'expo-speech';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const chats = [
@@ -57,7 +58,7 @@ const speak = (text) => {
 };
 
 
-const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null }) => {
+const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=0 }) => {
     const adverbs = item.means.filter(x => x.type === 'zf.');
     const nouns = item.means.filter(x => x.type === 'i.');
     const adjectives = item.means.filter(x => x.type === 's.');
@@ -74,24 +75,36 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null }) =>
                     marginVertical: 5,
                     marginHorizontal: 10,
                     backgroundColor: selectedItems !=null && selectedItems.includes(item.id) ? '#ddd' : '#fff',
+                    width:'95%'
                 },
             ]}
             onLongPress={() => onItemLongPress(item.id)}
             onPress={() => onItemPress(item.id)}
         >
+            {
+                type==1?<View style={styles.wordCard}>
+                <>
+                    <View style={styles.wordDetails}>
+                        <Text style={[styles.wordText,{fontSize:25}]}>{item.en}</Text>
+                    </View>
+                    <Ionicons name="volume-high" size={24} color="#888" style={styles.soundIcon} onPress={() => speak(item.en)} /> </>
+            </View>:''
+            }
             {item.image != '' ? <Image source={{ uri: item.image }} style={styles.avatar} /> : <></>}
 
             <View style={styles.listItemContent}>
 
                 <View style={styles.chatInfo}>
                     {/* İngilizce kelime kartı */}
-                    <View style={styles.wordCard}>
+                    {
+                type==0? <View style={styles.wordCard}>
                         <>
                             <View style={styles.wordDetails}>
                                 <Text style={styles.wordText}>{item.en}</Text>
                             </View>
                             <Ionicons name="volume-high" size={24} color="#888" style={styles.soundIcon} onPress={() => speak(item.en)} /> </>
                     </View>
+                :''}
                     {adverbs.length != 0 ? <View style={styles.wordCard}>
                         <View style={styles.wordMains}>
                             <Text style={styles.wordMain}>Adverbs : </Text>
@@ -294,6 +307,16 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
         }
       };
 
+      
+      const handleTick = () => {
+        if (currentCardIndex < chats.length - 1) {
+          setCurrentCardIndex((prevIndex) => prevIndex + 1);
+        } else {
+          // Eğer son kartsa başa dön
+          setCurrentCardIndex(0);
+        }
+      };
+
       const handlePrevCard = () => {
         if (currentCardIndex > 0) {
           setCurrentCardIndex((prevIndex) => prevIndex - 1);
@@ -308,60 +331,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                 isVisible={dropmodalVisible}
                 onClose={() => setdropModalVisible(false)}
             />
-
-            <Modal visible={isModalVisible} animationType="slide">
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                    {...panResponder.panHandlers}
-                >
-                 
-                        <ChatItem
-                            key={chats[currentCardIndex].id}
-                            item={chats[currentCardIndex]}
-                            onItemLongPress={() => onItemLongPress(chats[currentCardIndex])}
-                            onItemPress={() => onItemPress(chats[currentCardIndex])}
-                            // selectedItems={selectedItems}
-                        />
-                           <View
-                        style={{
-                            backgroundColor: 'white',
-                            padding: 20,
-                            borderRadius: 10,
-                        }}
-                    >
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                marginTop: 20,
-                            }}
-                        >
-                            <TouchableOpacity onPress={handlePrevCard}>
-                                <Text style={{ color: 'blue' }}>Önceki Kart</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={handleNextCard}>
-                                <Text style={{ color: 'blue' }}>Sonraki Kart</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity
-                            style={{
-                                backgroundColor: 'green',
-                                padding: 10,
-                                borderRadius: 5,
-                                marginTop: 20,
-                            }}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={{ color: 'white' }}>Kapat</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-            </Modal>
+          
 
 
             <View style={styles.addItemContainer}>
@@ -445,7 +415,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
             </View>
             {isPageType == 1 ? <AddItemFormComponent /> : <></>}
             {isPageType == 2 ? <AddGroupFormComponent /> : <></>}
-            {isPageType == 0 ? <FlatList
+            {isPageType == 0 && !isModalVisible? <FlatList
                 data={chats}
                 renderItem={({ item }) => (
                     <ChatItem
@@ -454,11 +424,77 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                         onItemLongPress={() => onItemLongPress(item.id)}
                         onItemPress={() => onItemPress(item.id)}
                         selectedItems={selectedItems}
+                        type={0}
                     />
                 )}
                 keyExtractor={(item) => item.id}
                 style={styles.flatList}
             /> : <></>}
+
+{isModalVisible?<View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor:'white'
+                    }}
+                    {...panResponder.panHandlers}
+                >
+                    <View
+                style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',  // Yatayda ve dikeyde ortalamak için eklenen stil
+                    position: 'absolute',
+                    top: 20,
+                    left: 0,
+                    right: 0,
+                    paddingHorizontal: 20,
+                    zIndex: 2,
+                }}
+            >
+                <TouchableOpacity onPress={handlePrevCard}>
+                    <Icon name="caret-left" size={30} color="blue" />
+                </TouchableOpacity>
+                
+                <TouchableOpacity onPress={handleTick}>
+                    <Icon name="check-circle" size={30} color="green" />
+                </TouchableOpacity>
+                
+                <TouchableOpacity onPress={handleNextCard}>
+                    <Icon name="caret-right" size={30} color="blue" />
+                </TouchableOpacity>
+            </View>
+                        <ChatItem
+                            key={chats[currentCardIndex].id}
+                            item={chats[currentCardIndex]}
+                            onItemLongPress={() => onItemLongPress(chats[currentCardIndex])}
+                            onItemPress={() => onItemPress(chats[currentCardIndex])}
+                            type={1}
+                            // selectedItems={selectedItems}
+                        />
+                           {/* <View
+                        style={{
+                            backgroundColor: 'white',
+                            padding: 20,
+                            borderRadius: 10,
+                        }}
+                    > */}
+                       
+                        {/* <TouchableOpacity
+                            style={{
+                                backgroundColor: 'green',
+                                padding: 10,
+                                borderRadius: 5,
+                                marginTop: 20,
+                            }}
+                            onPress={() => setModalVisible(false)}
+                        >
+                            <Text style={{ color: 'white' }}>Kapat</Text>
+                        </TouchableOpacity> */}
+                    {/* </View> */}
+                </View>:''}
+
 
         </View>
     );
@@ -511,7 +547,7 @@ const styles = StyleSheet.create({
     },
     avatar: {
         width: '100%',
-        height: 100,
+        height: 200,
         marginRight: 0,
         borderRadius: 10,
     },
@@ -524,6 +560,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
+        marginTop:10,
+        marginBottom:10
     },
     wordMains: {
         flexDirection: 'row', // Yazıları yatayda sıralamak için
