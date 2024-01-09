@@ -57,8 +57,131 @@ const speak = (text) => {
     Speech.speak(text);
 };
 
+const MultipleAnswer = ({ item, onItemLongPress, onItemPress, selectedItems = null, type = 0, handlePrevCard = null, handleTick = null, handleNextCard = null,chats=null}) => {
+    const adverbs = item.means.filter(x => x.type === 'zf.');
+    const nouns = item.means.filter(x => x.type === 'i.');
+    const adjectives = item.means.filter(x => x.type === 's.');
+    const pronouns = item.means.filter(x => x.type === 'zm.');
+    const verbs = item.means.filter(x => x.type === 'f.');
+  
+    // Rasgele seçilen bir kelimenin Türkçe anlamını bulma fonksiyonu
+    const getRandomMeaning = () => {
+      const randomIndex = Math.floor(Math.random() * chats.length);
+      if(chats[randomIndex].en===item.en)
+      {
+        getRandomMeaning();
+      }
+      return chats[randomIndex].means.map(mean => mean.mean).join(', '); // Burada sadece ilk anlamı alıyoruz, dilerseniz farklı bir anlamı da seçebilirsiniz.
+    };
+  
+    // Rasgele şıkları oluşturma
+    const generateRandomOptions = () => {
+      const correctMeaning = item.means.map(mean => mean.mean).join(', '); // Doğru cevap
+      const min = 0;
+      const max = 5; // Bu değer max değerine dahil olmayacak, yani 4'e kadar olan sayıları içerecek.
+      
+      const randomNumber = Math.floor(Math.random() * (max - min) + min);
+      
+      const options = [
+        { option: 'A', meaning: randomNumber==0?correctMeaning:getRandomMeaning() }, // Doğru cevap
+        { option: 'B', meaning: randomNumber==1?correctMeaning:getRandomMeaning() }, // Rasgele seçilen bir anlam
+        { option: 'C', meaning: randomNumber==2?correctMeaning:getRandomMeaning() }, // Rasgele seçilen bir anlam
+        { option: 'D', meaning: randomNumber==3?correctMeaning:getRandomMeaning()}, // Rasgele seçilen bir anlam
+        { option: 'E', meaning: randomNumber==4?correctMeaning:getRandomMeaning() }, // Rasgele seçilen bir anlam
+        // Daha fazla şık ekleyebilirsiniz
+      ];
+  
+      // Şıkları karıştırma
+      return options;
+    };
+  
+    const randomOptions = generateRandomOptions();
+  
+    return (
+      <>
+        <View
+          style={[
+            styles.listItem,
+            {
+              marginVertical: 5,
+              marginHorizontal: 10,
+              backgroundColor: selectedItems != null && selectedItems.includes(item.id) ? '#ddd' : '#fff',
+              width: '95%'
+            },
+          ]}
+        >
+          {type === 1 ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                left: 0,
+                right: 0,
+                zIndex: 2,
+                marginBottom: 5,
+                borderColor: '#e0e0e0',
+                backgroundColor: '#f5f5f5',
+                borderWidth: 1,
+                padding: 5,
+                borderRadius: 5
+              }}
+            >
+              <TouchableOpacity onPress={handlePrevCard}>
+                <Icon name="caret-left" size={30} color="gray" />
+              </TouchableOpacity>
+  
+              <TouchableOpacity onPress={handleTick}>
+                <Icon name="check-circle" size={30} color="green" />
+              </TouchableOpacity>
+  
+              <TouchableOpacity onPress={handleNextCard}>
+                <Icon name="caret-right" size={30} color="gray" />
+              </TouchableOpacity>
+            </View>
+          ) : ''}
+  
+          {type === 1 ? (
+            <View style={styles.wordCard}>
+              <>
+                <View style={styles.wordDetails}>
+                  <Text style={[styles.wordText, { fontSize: 25 }]}>{item.en}</Text>
+                </View>
+                <Ionicons name="volume-high" size={24} color="#888" style={styles.soundIcon} onPress={() => speak(item.en)} /> </>
+            </View>
+          ) : ''}
+  
+          <View style={styles.listItemContent}>
+  
+            <View style={styles.chatInfo}>
+              {type === 0 ? <View style={styles.wordCard}>
+                <>
+                  <View style={styles.wordDetails}>
+                    <Text style={styles.wordText}>{item.en}</Text>
+                  </View>
+                  <Ionicons name="volume-high" size={24} color="#888" style={styles.soundIcon} onPress={() => speak(item.en)} /> </>
+              </View> : ''}
+              <View style={[styles.wordCard, { marginTop: 4, textAlign: "center" }]}>
+                <View >
+                  <Text style={{ textAlign: "left", marginTop: 4, marginBottom: 4, marginLeft: 10 }}>Anlamı aşağıdakilerden hangisidir</Text>
+                </View>
+              </View>
+            </View>
+           
+          </View>
+          {randomOptions.map((option, index) => (
+                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+                <Text style={{ marginRight: 8, fontWeight: 'bold' }}>{option.option}:</Text>
+                <Text>{option.meaning}</Text>
+                </View>
+            ))}
+        </View>
+      </>
+    );
+  };
+  
 
-const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=0 }) => {
+const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=0,handlePrevCard=null,handleTick=null,handleNextCard=null }) => {
     const adverbs = item.means.filter(x => x.type === 'zf.');
     const nouns = item.means.filter(x => x.type === 'i.');
     const adjectives = item.means.filter(x => x.type === 's.');
@@ -68,6 +191,8 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=
     // ...
 
     return (
+        <>
+        
         <TouchableOpacity
             style={[
                 styles.listItem,
@@ -81,6 +206,35 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=
             onLongPress={() => onItemLongPress(item.id)}
             onPress={() => onItemPress(item.id)}
         >
+            {type===1?<View
+        style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',  // Yatayda ve dikeyde ortalamak için eklenen stil
+            left: 0,
+            right: 0,
+            zIndex: 2,
+            marginBottom:5,
+            borderColor: '#e0e0e0',
+            backgroundColor:'#f5f5f5',
+            borderWidth:1,
+            padding:5,
+            borderRadius:5
+                }}
+    >
+        <TouchableOpacity onPress={handlePrevCard}>
+            <Icon name="caret-left" size={30} color="gray" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={handleTick}>
+            <Icon name="check-circle" size={30} color="green" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={handleNextCard}>
+            <Icon name="caret-right" size={30} color="gray" />
+        </TouchableOpacity>
+    </View>:''}
+
             {
                 type==1?<View style={styles.wordCard}>
                 <>
@@ -90,7 +244,13 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=
                     <Ionicons name="volume-high" size={24} color="#888" style={styles.soundIcon} onPress={() => speak(item.en)} /> </>
             </View>:''
             }
-            {item.image != '' ? <Image source={{ uri: item.image }} style={styles.avatar} /> : <></>}
+            {item.image != '' ? <Image source={{ uri: item.image }} style={styles.avatar} /> : 
+            <View style={styles.avatar}>
+    <View style={styles.imagePlaceholder}>
+            <Icon name="image" size={50} color="#888" />
+            <Text>Resim Yok</Text>
+        </View>
+</View>}
 
             <View style={styles.listItemContent}>
 
@@ -187,6 +347,7 @@ const ChatItem = ({ item, onItemLongPress, onItemPress, selectedItems=null,type=
                 </View>
             </View>
         </TouchableOpacity>
+        </>
     );
 };
 const handleAddItem = (newItem) => {
@@ -195,7 +356,8 @@ const handleAddItem = (newItem) => {
 };
 
 
-const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selectedItems }) => {
+const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selectedItems,type=0 }) => {
+    
     const [dropmodalVisible, setdropModalVisible] = useState(false);
     const DropdownMenu = ({ isVisible, onClose }) => {
         if (!isVisible) return null;
@@ -203,10 +365,10 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
         return (
             <View style={styles.dropdownContainer}>
                 <>
-                    <TouchableOpacity onPress={() => handleModalVisible()}>
+                    <TouchableOpacity onPress={() => handleModalVisible(3)}>
                         <Text style={styles.dropdownItem}>Basic Review</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => onClose()}>
+                    <TouchableOpacity onPress={() => handleModalVisible(4)}>
                         <Text style={styles.dropdownItem}>Multiple Answers</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => onClose()}>
@@ -247,9 +409,10 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
         setModalVisible(false);
     };
 
-    const handleModalVisible = () => {
+    const handleModalVisible = (type) => {
         handleDropModalVisible();
         setModalVisible(true);
+        setisPageType(type)
     };
 
 
@@ -335,7 +498,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
 
 
             <View style={styles.addItemContainer}>
-                {isPageType == 0 ?
+                {isPageType === 0 ?
                     <>
 
                         <TouchableOpacity
@@ -355,7 +518,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
 
                     </> : <></>}
 
-                {isPageType == 1 ?
+                {isPageType === 1 ?
                     <>
                         <TouchableOpacity
                             style={styles.addItemButton}
@@ -382,7 +545,7 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                         </TouchableOpacity>
                     </> : <></>}
 
-                {isPageType == 2 ?
+                {isPageType === 2 ?
                     <>
                         <TouchableOpacity
                             style={styles.addItemButton}
@@ -411,11 +574,37 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                         </>
                     </> : <></>}
 
+                    {isPageType === 3 || isPageType === 4 ?
+                    <>
+                        <TouchableOpacity
+                            style={styles.addItemButton}
+                            onPress={() => setisPageType(0)}
+                        >
+                            <View style={styles.buttonContent}>
+                                <Text>
+                                    <Ionicons name="list" size={24} color="green" />
+                                    <Text style={styles.addItemText}>Tüm Kart Listesi</Text>
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.addItemButton}
+                                onPress={() => setisPageType(1)}
+                            >
+                                <View style={styles.buttonContent}>
+                                    <Text>
+                                        <Ionicons name="add" size={24} color="green" />
+                                        <Text style={styles.addItemText}>Yeni Kart Ekle</Text>
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                    </> : <></>}
+
 
             </View>
-            {isPageType == 1 ? <AddItemFormComponent /> : <></>}
-            {isPageType == 2 ? <AddGroupFormComponent /> : <></>}
-            {isPageType == 0 && !isModalVisible? <FlatList
+            {isPageType === 1 ? <AddItemFormComponent /> : <></>}
+            {isPageType === 2 ? <AddGroupFormComponent /> : <></>}
+            {isPageType === 0 ? <FlatList
                 data={chats}
                 renderItem={({ item }) => (
                     <ChatItem
@@ -431,40 +620,15 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                 style={styles.flatList}
             /> : <></>}
 
-{isModalVisible?<View
+            {isPageType === 3?<View
                     style={{
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor:'white'
                     }}
                     {...panResponder.panHandlers}
                 >
-                    <View
-                style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',  // Yatayda ve dikeyde ortalamak için eklenen stil
-                    position: 'absolute',
-                    top: 20,
-                    left: 0,
-                    right: 0,
-                    paddingHorizontal: 20,
-                    zIndex: 2,
-                }}
-            >
-                <TouchableOpacity onPress={handlePrevCard}>
-                    <Icon name="caret-left" size={30} color="blue" />
-                </TouchableOpacity>
-                
-                <TouchableOpacity onPress={handleTick}>
-                    <Icon name="check-circle" size={30} color="green" />
-                </TouchableOpacity>
-                
-                <TouchableOpacity onPress={handleNextCard}>
-                    <Icon name="caret-right" size={30} color="blue" />
-                </TouchableOpacity>
-            </View>
+                   
                         <ChatItem
                             key={chats[currentCardIndex].id}
                             item={chats[currentCardIndex]}
@@ -472,27 +636,33 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
                             onItemPress={() => onItemPress(chats[currentCardIndex])}
                             type={1}
                             // selectedItems={selectedItems}
+                            handlePrevCard={handlePrevCard}
+                            handleTick={handleTick}
+                            handleNextCard={handleNextCard}
                         />
-                           {/* <View
-                        style={{
-                            backgroundColor: 'white',
-                            padding: 20,
-                            borderRadius: 10,
-                        }}
-                    > */}
-                       
-                        {/* <TouchableOpacity
-                            style={{
-                                backgroundColor: 'green',
-                                padding: 10,
-                                borderRadius: 5,
-                                marginTop: 20,
-                            }}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={{ color: 'white' }}>Kapat</Text>
-                        </TouchableOpacity> */}
-                    {/* </View> */}
+                </View>:''}
+
+                {isPageType === 4?<View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                    {...panResponder.panHandlers}
+                >
+                   
+                        <MultipleAnswer
+                            key={chats[currentCardIndex].id}
+                            item={chats[currentCardIndex]}
+                            onItemLongPress={() => onItemLongPress(chats[currentCardIndex])}
+                            onItemPress={() => onItemPress(chats[currentCardIndex])}
+                            type={1}
+                            // selectedItems={selectedItems}
+                            handlePrevCard={handlePrevCard}
+                            handleTick={handleTick}
+                            handleNextCard={handleNextCard}
+                            chats={chats}
+                        />
                 </View>:''}
 
 
@@ -661,6 +831,13 @@ const styles = StyleSheet.create({
     },
     dropdownItem: {
         padding: 10,
+    },
+    imagePlaceholder: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#ddd', // veya başka bir arkaplan rengi
+        borderRadius: 10,
     },
 });
 
