@@ -383,6 +383,7 @@ const MatchCarts = ({ cards, onGameComplete }) => {
   const [shuffledCardstr, setShuffledCardstr] = useState([]);
   const [selectedCardIndices, setSelectedCardIndices] = useState([]);
   const [isMatched, setIsMatched] = useState(Array(cards.length).fill(false));
+  const [blink, setBlink] = useState(false);
 
   useEffect(() => {
     // Kartları karıştır
@@ -406,50 +407,113 @@ const MatchCarts = ({ cards, onGameComplete }) => {
   };
 
   const handleCardClick = (card) => {
-    if (selectedCardIndices.length < 2 && !isMatched[card]) {
-      // Eğer iki kart seçili değilse ve seçilen kart daha önce eşleşmediyse
-      setSelectedCardIndices((prevIndices) => [...prevIndices, card]);
+    if (!isMatched[card]) {
+        selectedCardIndices[0]=card;
+        console.log(selectedCardIndices);
+
+      setSelectedCardIndices([...selectedCardIndices]);
+
+      if(selectedCardIndices[1]!==undefined)
+      {
+        selectReset();
+      }
     }
+    setTimeout(() => {
+        newCarts();
+      }, 1000);
+    
   };
 
-  useEffect(() => {
-    if (selectedCardIndices.length === 2) {
-      // Eğer iki kart seçili ise kontrol et ve sıfırla
-      
-       const [index1, index2] = selectedCardIndices;
-       console.log(index1);
-       console.log(index2);
-      if (index1=== index2) {
-        let idx1=shuffledCards.findIndex(k=>k===index1);
-        shuffledCards[idx1].status=true;
-        setShuffledCards(shuffledCards);
-        let idx2=shuffledCardstr.findIndex(k=>k===index1);
-        shuffledCardstr[idx2].status=true;
-        setShuffledCardstr(shuffledCardstr);
-        // Eğer seçilen kartlar aynı çiftin kartları ise işlemleri yap
-      }
-      console.log(shuffledCardstr);
-      setSelectedCardIndices([]);
-
-    //   if(shuffled!==undefined && shuffled.filter(x=>x.status===true).length===shuffled.length)
-    //   {
-    //     for(let i=0;i<shuffled.length;i++)
-    //     {
-    //         shuffled[i].status=false;
-    //     }
-    //     setShuffledCards(shuffled);
-
-    //     for(let i=0;i<shuffledtr.length;i++)
-    //     {
-    //         shuffledtr[i].status=false;
-    //     }
-    //     setShuffledCardstr(shuffledtr);
-
-    //   }
-
-
+  const handleCardClickTr = (card) => {
+    if (!isMatched[card]) {
+        selectedCardIndices[1]=card;
+        console.log(selectedCardIndices);
+        setSelectedCardIndices([...selectedCardIndices]);
+        if(selectedCardIndices[0]!==undefined)
+        {
+                selectReset();
+        }
     }
-  }, [selectedCardIndices, shuffledCards]);
+
+    setTimeout(() => {
+        newCarts();
+      }, 1000);
+  };
+
+  const newCarts=()=>{
+    if(shuffledCards.filter(x=>x.status===true).length===shuffledCards.length)
+    {
+        // Kartları karıştır
+        for(let i=0;i<cards.length;i++)
+        {
+            cards[i].status=null;
+        }
+        const shuffled = shuffleArray(cards);
+        setShuffledCards(shuffled);
+        const shuffledtr = shuffleArray(cards);
+        setShuffledCardstr(shuffledtr);
+        // Eşleşme durumlarını sıfırla
+        setSelectedCardIndices([]);
+        setIsMatched(Array(shuffled.length).fill(false));
+        
+    console.log('shuffledCards',shuffledCards);
+    }
+        
+  }
+
+  const selectReset=()=>{
+    setBlink(true);
+    setTimeout(() => {
+        if (selectedCardIndices.length === 2) {
+            // Eğer iki kart seçili ise kontrol et ve sıfırla
+            
+             const [index1, index2] = selectedCardIndices;
+             console.log(index1);
+             console.log(index2);
+            if (index1=== index2) {
+              let idx1=shuffledCards.findIndex(k=>k===index1);
+              shuffledCards[idx1].status=true;
+              setShuffledCards(shuffledCards);
+              let idx2=shuffledCardstr.findIndex(k=>k===index1);
+              shuffledCardstr[idx2].status=true;
+              setShuffledCardstr(shuffledCardstr);
+              // Eğer seçilen kartlar aynı çiftin kartları ise işlemleri yap
+            }
+            else{
+                let idx1=shuffledCards.findIndex(k=>k===index1);
+                shuffledCards[idx1].status=false;
+                setShuffledCards(shuffledCards);
+                let idx2=shuffledCardstr.findIndex(k=>k===index1);
+                shuffledCardstr[idx2].status=false;
+                setShuffledCardstr(shuffledCardstr);
+                // Eğer seçilen kartlar aynı çiftin kartları ise işlemleri yap
+            }
+            console.log(shuffledCardstr);
+            setSelectedCardIndices([]);
+      
+          //   if(shuffled!==undefined && shuffled.filter(x=>x.status===true).length===shuffled.length)
+          //   {
+          //     for(let i=0;i<shuffled.length;i++)
+          //     {
+          //         shuffled[i].status=false;
+          //     }
+          //     setShuffledCards(shuffled);
+      
+          //     for(let i=0;i<shuffledtr.length;i++)
+          //     {
+          //         shuffledtr[i].status=false;
+          //     }
+          //     setShuffledCardstr(shuffledtr);
+      
+          //   }
+      
+      
+          }
+           setBlink(false);
+      }, 1000);
+    
+  }
+
 
  
 
@@ -460,10 +524,11 @@ const MatchCarts = ({ cards, onGameComplete }) => {
       {shuffledCards.map((card, index) => (
         <div
           key={index}
+          className={`card ${isMatched[index] ? 'matched' : ''} ${blink && card.status === false ? 'blink-red' : ''}`}
           style={{
-            width: '100px',
-            height: '100px',
-            border: '1px solid #ddd',
+            width: '120px',
+            height: '50px',
+            border: `1px solid ${selectedCardIndices[0]===card ? '#ababab' : '#ddd'}`, // Seçili kartın sınır rengini değiştir
             padding: '10px',
             display: 'flex',
             justifyContent: 'center',
@@ -474,7 +539,7 @@ const MatchCarts = ({ cards, onGameComplete }) => {
           }}
           onClick={() => handleCardClick(card)}
         >
-          <div style={{ textAlign: 'center' }}>{card.status ? '✔️' : card.en + ' ' + card.id}</div>
+          <div style={{ textAlign: 'center' }}>{card.status===true ? '✔️' : card.en }</div>
         </div>
       ))}
     </div>
@@ -485,9 +550,9 @@ const MatchCarts = ({ cards, onGameComplete }) => {
         <div
           key={index}
           style={{
-            width: '100px',
-            height: '100px',
-            border: '1px solid #ddd',
+            width: '120px',
+            height: '50px',
+            border: `1px solid ${selectedCardIndices[1]===card ? '#ababab' : '#ddd'}`, // Seçili kartın sınır rengini değiştir
             marginLeft: '5px', // Boşluk eklemek için
             padding: '10px',
             display: 'flex',
@@ -497,9 +562,9 @@ const MatchCarts = ({ cards, onGameComplete }) => {
             cursor: isMatched[index] ? 'not-allowed' : 'pointer',
             backgroundColor: isMatched[index] ? '#aaffaa' : '#fff',
           }}
-          onClick={() => handleCardClick(card)}
+          onClick={() => handleCardClickTr(card)}
         >
-          <div style={{ textAlign: 'center' }}>{card.status ? '✔️' : card.means[0].mean + ' ' + card.id}</div>
+          <div style={{ textAlign: 'center' }}>{card.status===true ? '✔️' : card.means[0].mean}</div>
         </div>
       ))}
     </div>
@@ -859,14 +924,23 @@ const ChatsScreen = ({ onItemLongPress, onItemPress, isMultiSelectMode, selected
 
             </ScrollView> : ''}
             {isPageType === 5?
-             <div>
+             <ScrollView
+             style={{
+                 flex: 1,
+             }}
+             contentContainerStyle={{
+                 justifyContent: 'center',
+                 alignItems: 'center',
+             }}
+             {...panResponder.panHandlers}
+         >
                  <MatchCarts cards={chats} onGameComplete={handleGameComplete} />
              {/* {!gameCompleted ? (
               
              ) : (
                <p>Congratulations! You completed the game.</p>
              )} */}
-           </div>
+           </ScrollView>
             :<></>}
 
         </View>
