@@ -6,8 +6,8 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, Modal } from 'r
 import logo from '../assets/icon.png';
 import ChatsScreen from './ChatsScreen';
 import { createStackNavigator } from '@react-navigation/stack';
-import StatusScreen from './StatusScreen';
-
+import ProfileScreen from './ProfileScreen';
+import DailyScreen from './DailyScreen';
 const WordBook = () => {
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -33,7 +33,13 @@ const WordBook = () => {
     }
 
     const DurumScreen = () => {
-        return <StatusScreen onItemLongPress={handleItemLongPress}
+        const user = {
+            username: 'johndoe',
+            bio: 'Software Engineer | React Native Developer',
+            avatar: 'https://images-na.ssl-images-amazon.com/images/S/pv-target-images/ae4816cade1a5b7f29787d0b89610132c72c7747041481c6619b9cc3302c0101._RI_TTW_.jpg',
+            backgroundImage:'https://images.pexels.com/photos/235986/pexels-photo-235986.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        };
+        return <ProfileScreen user={user} onItemLongPress={handleItemLongPress}
         onItemPress={handleItemPress}
         isMultiSelectMode={isMultiSelectMode}
         selectedItems={selectedItems}
@@ -41,7 +47,17 @@ const WordBook = () => {
     }
 
     const AramalarScreen = () => {
-        return <View><Text>Calls Screen</Text></View>;
+        const user = {
+            username: 'johndoe',
+            bio: 'Software Engineer | React Native Developer',
+            avatar: 'https://images-na.ssl-images-amazon.com/images/S/pv-target-images/ae4816cade1a5b7f29787d0b89610132c72c7747041481c6619b9cc3302c0101._RI_TTW_.jpg',
+            backgroundImage:'https://images.pexels.com/photos/235986/pexels-photo-235986.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        };
+        return <DailyScreen user={user} onItemLongPress={handleItemLongPress}
+        onItemPress={handleItemPress}
+        isMultiSelectMode={isMultiSelectMode}
+        selectedItems={selectedItems}
+    />;
     }
 
 
