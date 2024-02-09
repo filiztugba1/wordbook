@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
-    "@react-navigation/bottom-tabs": "^6.5.8",
+    "@react-navigation/bottom-tabs": "^6.5.12",
     "@react-navigation/core": "^6.4.10",
-    "@react-navigation/native": "^6.1.7",
-    "@react-navigation/stack": "^6.3.17",
+    "@react-navigation/native": "^6.1.10",
+    "@react-navigation/stack": "^6.3.21",
     "@shopify/react-native-skia": "^0.1.238",
     "axios": "^1.6.3",
     "expo": "^48.0.17",
