@@ -39,8 +39,10 @@ const ProfileScreen = ({ user, onItemLongPress }) => {
             style={{ width: '100%', height: 200 }}
           />
           {/* Profil Değiştirme İkonu */}
-          <TouchableOpacity style={{ position: 'absolute', bottom: 10, right: 10, backgroundColor: 'white', padding: 5, borderRadius: 20 }}>
-            <Text style={{ color: 'black' }}>📷</Text>
+          <TouchableOpacity style={{ position: 'absolute', bottom: 10, right: 20 }}>
+              <View style={{ backgroundColor: 'white', padding: 5, borderRadius: 20 }}>
+                  <Text style={{ color: 'black' }}>📷</Text>
+              </View>
           </TouchableOpacity>
         </View>
         
@@ -50,8 +52,10 @@ const ProfileScreen = ({ user, onItemLongPress }) => {
             source={{ uri: user.avatar }}
             style={{ width: 150, height: 150, borderRadius: 75 ,borderWidth: 5, borderColor: '#ebebeb'}}
           />
-          <TouchableOpacity style={{ position: 'absolute', bottom: 10, right: '33%', backgroundColor: 'white', padding: 5, borderRadius: 20 }}>
-            <Text style={{ color: 'black' }}>📷</Text>
+          <TouchableOpacity style={{ position: 'absolute', bottom: 10, right: 20 }}>
+              <View style={{ backgroundColor: 'white', padding: 5, borderRadius: 20 }}>
+                  <Text style={{ color: 'black' }}>📷</Text>
+              </View>
           </TouchableOpacity>
         </View>
       </View>

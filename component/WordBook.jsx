@@ -1,3 +1,5 @@
+// WordBook.js
+
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -8,6 +10,7 @@ import ChatsScreen from './ChatsScreen';
 import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from './ProfileScreen';
 import DailyScreen from './DailyScreen';
+import LoginScreen from './LoginScreen';
 const WordBook = () => {
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -140,7 +143,6 @@ const WordBook = () => {
 
     const DropdownMenu = ({ isVisible, onClose }) => {
         if (!isVisible) return null;
-
         return (
             <View style={styles.dropdown}>
                 <TouchableOpacity onPress={() => onClose()}>
@@ -161,8 +163,8 @@ const WordBook = () => {
 
 
 
+
     return (
-        <NavigationContainer>
             <Tab.Navigator
                 initialRouteName="Chats"
                 tabBarOptions={{
@@ -207,7 +209,6 @@ const WordBook = () => {
                     options={{ headerShown: false }}
                 />
             </Tab.Navigator>
-        </NavigationContainer>
     );
 }
 const styles = StyleSheet.create({

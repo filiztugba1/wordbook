@@ -1,172 +1,89 @@
 import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, Modal } from 'react-native';
-import logo from '../assets/icon.png';
-import ChatsScreen from './ChatsScreen';
-import { createStackNavigator } from '@react-navigation/stack';
-import ProfileScreen from './ProfileScreen';
-import DailyScreen from './DailyScreen';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
-const Tab = createBottomTabNavigator();
+const LoginScreen = ({ navigation, onLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-const WordBook = () => {
-    const [modalVisible, setModalVisible] = useState(false);
-    const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
-    const [selectedItems, setSelectedItems] = useState([]);
-
-    const handleModalVisible = () => {
-        setModalVisible(!modalVisible);
+  const handleLogin = () => {
+    if (username === 'demo' && password === 'demo') {
+      onLogin(); // Oturum açma işlemi başarılı olduğunda onLogin fonksiyonunu çağır
+    } else {
+      setError('Kullanıcı adı veya şifre hatalı.');
     }
+  };
 
-    const handleSelectItem = (itemId) => {
-        if (selectedItems.includes(itemId)) {
-            setSelectedItems(prevItems => prevItems.filter(id => id !== itemId));
-        } else {
-            setSelectedItems(prevItems => [...prevItems, itemId]);
-        }
-    };
+  return (
+    <View style={styles.container}>
+      <Text style={styles.logo}>Wordbook</Text>
+      <View style={styles.inputView}>
+        <TextInput
+          style={styles.inputText}
+          placeholder="Kullanıcı Adı"
+          placeholderTextColor="#003f5c"
+          onChangeText={text => setUsername(text)}
+        />
+      </View>
+      <View style={styles.inputView}>
+        <TextInput
+          secureTextEntry
+          style={styles.inputText}
+          placeholder="Şifre"
+          placeholderTextColor="#003f5c"
+          onChangeText={text => setPassword(text)}
+        />
+      </View>
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
+        <Text style={styles.loginText}>Giriş Yap</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
-    const handleItemLongPress = (itemId) => {
-        setIsMultiSelectMode(true);
-        handleSelectItem(itemId);
-    };
-
-    const handleItemPress = (itemId) => {
-        if (isMultiSelectMode) {
-            handleSelectItem(itemId);
-        }
-    };
-
-    const handleDeleteSelectedItems = () => {
-        setIsMultiSelectMode(false);
-        setSelectedItems([]);
-    };
-
-    const DropdownMenu = ({ isVisible, onClose }) => {
-        if (!isVisible) return null;
-
-        return (
-            <View style={styles.dropdown}>
-                <TouchableOpacity onPress={() => onClose()}>
-                    <Text style={styles.dropdownItem}>Kart Grupları</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onClose()}>
-                    <Text style={styles.dropdownItem}>Tüm Kartlar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onClose()}>
-                    <Text style={styles.dropdownItem}>Grammer Notlarım</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => onClose()}>
-                    <Text style={styles.dropdownItem}>Günlük Yazılarım</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    };
-
-    const ChatsStackNavigator = ({ type }) => {
-        return (
-            <Stack.Navigator>
-                <Stack.Screen
-                    name="Chats"
-                    component={type === 'kartlar' ? ChatsScreen : (type === 'durum' ? ProfileScreen : DailyScreen)}
-                    options={({ navigation }) => ({
-                        headerTitle: () => (
-                            <View><Text style={styles.logo}>WORDBOOK</Text></View>
-                        ),
-                        headerTintColor: '#fff',
-                        headerStyle: {
-                            backgroundColor: '#0077B6',
-                        },
-                        headerRight: () => (
-                            <>
-                                <View style={{ flexDirection: 'row', marginRight: 10 }}>
-                                    {isMultiSelectMode ? <TouchableOpacity onPress={handleDeleteSelectedItems}>
-                                        <Ionicons name="md-trash" size={24} color="#fff" />
-                                    </TouchableOpacity> :
-                                        <TouchableOpacity onPress={handleModalVisible}>
-                                            <Ionicons name="ellipsis-vertical" size={24} color="#fff" />
-                                        </TouchableOpacity>
-                                    }
-                                </View>
-                                <DropdownMenu
-                                    isVisible={modalVisible}
-                                    onClose={() => setModalVisible(false)}
-                                />
-                            </>
-                        ),
-                    })}
-                />
-            </Stack.Navigator>
-        );
-    };
-
-    return (
-        <Tab.Navigator
-            initialRouteName="Kartlar"
-            tabBarOptions={{
-                activeTintColor: '#0077B6',
-                style: {
-                    backgroundColor: '#0077B6'
-                },
-                labelStyle: {
-                    fontSize: 12,
-                },
-            }}
-            screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size }) => {
-                    let iconName;
-
-                    if (route.name === 'Kartlar') {
-                        iconName = focused ? 'ios-images' : 'ios-images-outline';
-                    } else if (route.name === 'Profil') {
-                        iconName = focused ? 'ios-person' : 'ios-person-outline';
-                    } else if (route.name === 'Günlük Yaz') {
-                        iconName = focused ? 'ios-book' : 'ios-book-outline';
-                    }
-
-                    return <Ionicons name={iconName} size={size} color={color} />;
-                }
-            })}
-        >
-            <Tab.Screen
-                name="Kartlar"
-                component={ChatsStackNavigator}
-                initialParams={{ type: 'kartlar' }}
-            />
-            <Tab.Screen
-                name="Profil"
-                component={ChatsStackNavigator}
-                initialParams={{ type: 'durum' }}
-            />
-            <Tab.Screen
-                name="Günlük Yaz"
-                component={ChatsStackNavigator}
-                initialParams={{ type: 'günlükyaz' }}
-            />
-        </Tab.Navigator>
-    );
-}
+export default LoginScreen;
 
 const styles = StyleSheet.create({
-    dropdown: {
-        position: 'absolute',
-        top: 40,
-        right: 10,
-        backgroundColor: 'white',
-        borderRadius: 5,
-        elevation: 5,
-        padding: 5,
-    },
-    dropdownItem: {
-        padding: 10,
-    },
-    logo: {
-        fontSize: 20,
-        color: "#fff",
-        fontWeight: "bold"
-    }
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f8f8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    fontWeight: 'bold',
+    fontSize: 50,
+    color: '#1877f2',
+    marginBottom: 40,
+  },
+  inputView: {
+    width: '80%',
+    backgroundColor: '#ffffff',
+    borderRadius: 25,
+    height: 50,
+    marginBottom: 20,
+    justifyContent: 'center',
+    padding: 20,
+  },
+  inputText: {
+    height: 50,
+    color: '#003f5c',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 20,
+  },
+  loginBtn: {
+    width: '80%',
+    backgroundColor: '#1877f2',
+    borderRadius: 25,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  loginText: {
+    color: 'white',
+  },
 });
-
-export default WordBook;

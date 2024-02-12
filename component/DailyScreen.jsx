@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, Modal, TextInput, Button, TouchableWithoutFeedback } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons'; // FontAwesome ikonları için
 
-const DailyScreen = ({ user, onItemLongPress }) => {
+const DailyScreen = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedLog, setSelectedLog] = useState('');
   const [dailyLogs, setDailyLogs] = useState([
@@ -31,19 +31,21 @@ const DailyScreen = ({ user, onItemLongPress }) => {
     <ScrollView style={{ flex: 1 }}>
       <View style={{ marginHorizontal: 20 }}>
         <TouchableOpacity onPress={() => setShowModal(true)} style={{ alignItems: 'center', backgroundColor: '#1877f2', padding: 10, borderRadius: 5, marginBottom: 20 }}>
-          <Text style={{ color: 'white' }}>Günlük Ekle</Text>
+          <View><Text style={{ color: 'white' }}>Günlük Ekle</Text></View>
         </TouchableOpacity>
 
         {dailyLogs.map((log, index) => (
           <TouchableOpacity key={index} onPress={() => { setSelectedLog(log.log); setShowModal(true); }} style={{ marginBottom: 20, backgroundColor: 'white', padding: 10, borderRadius: 10 }}>
-            <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>{log.date}</Text>
-            <Text numberOfLines={3} ellipsizeMode="tail">{log.log.substring(0, 100)}...</Text>
-            <FontAwesome name="angle-right" size={24} color="black" style={{ position: 'absolute', top: 10, right: 10 }} />
+            <View>
+              <Text style={{ fontWeight: 'bold', marginBottom: 5 }}>{log.date}</Text>
+              <Text numberOfLines={3} ellipsizeMode="tail">{log.log.substring(0, 100)}...</Text>
+              <FontAwesome name="angle-right" size={24} color="black" style={{ position: 'absolute', top: 10, right: 10 }} />
+            </View>
           </TouchableOpacity>
         ))}
 
         <Modal visible={showModal} animationType="slide" transparent={true}>
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
               <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 20, width: '80%', minHeight: '80%' }}>
                 <TextInput
