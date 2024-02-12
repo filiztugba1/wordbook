@@ -1,7 +1,7 @@
 // WordBook.js
 
 import React, { useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer,useNavigation  } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, Modal } from 'react-native';
@@ -11,12 +11,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ProfileScreen from './ProfileScreen';
 import DailyScreen from './DailyScreen';
 import LoginScreen from './LoginScreen';
-const WordBook = () => {
+const WordBook = ({ onLogout }) => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const Tab = createBottomTabNavigator();
 
-
+    const navigation = useNavigation();
     const ChatsStack = createStackNavigator();
 
 
@@ -129,6 +129,7 @@ const WordBook = () => {
                                 <DropdownMenu
                                     isVisible={modalVisible}
                                     onClose={() => setModalVisible(false)}
+                                    onLogout={()=>onLogout()}
                                 />
                             </>
                         ),
@@ -141,21 +142,24 @@ const WordBook = () => {
 
   
 
-    const DropdownMenu = ({ isVisible, onClose }) => {
+    const DropdownMenu = ({ isVisible, onClose,onLogout }) => {
         if (!isVisible) return null;
         return (
             <View style={styles.dropdown}>
                 <TouchableOpacity onPress={() => onClose()}>
                     <Text style={styles.dropdownItem}>Kart Grupları</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => onClose()}>
+                <TouchableOpacity onPress={() => navigation.navigate('Kartlar')}>
                     <Text style={styles.dropdownItem}>Tüm Kartlar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => onClose()}>
+                <TouchableOpacity onPress={() => navigation.navigate('Grammder Notlarim')}>
                     <Text style={styles.dropdownItem}>Grammer Notlarım</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => onClose()}>
+                <TouchableOpacity onPress={() => navigation.navigate('Günlük Yaz')}>
                     <Text style={styles.dropdownItem}>Günlük Yazılarım</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => onLogout()}>
+                    <Text style={styles.dropdownItem}>Çıkış Yap</Text>
                 </TouchableOpacity>
             </View>
         );

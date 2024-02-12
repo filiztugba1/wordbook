@@ -38,6 +38,10 @@ const LoginScreen = ({ navigation, onLogin }) => {
       <TouchableOpacity style={styles.loginBtn} onPress={handleLogin}>
         <Text style={styles.loginText}>Giriş Yap</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.loginBtn} >
+        <Text style={styles.loginText}>Üye Ol</Text>
+      </TouchableOpacity>
     </View>
   );
 };

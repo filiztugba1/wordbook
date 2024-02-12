@@ -29,7 +29,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      {isAuthenticated ? (<WordBook/>):
+      {isAuthenticated ? (<WordBook onLogout={handleLogout} />):
 
             (<Stack.Navigator headerMode="none">
             {/* isAuthenticated durumuna göre ilgili ekranı göster */}
