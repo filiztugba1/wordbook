@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './component/LoginScreen';
+import SignUpScreen from './component/SignUpScreen';
 import WordBook from './component/WordBook';
 
 const Stack = createStackNavigator();
@@ -35,6 +36,9 @@ export default function App() {
             {/* isAuthenticated durumuna göre ilgili ekranı göster */}
               <Stack.Screen name="Login">
                 {(props) => <LoginScreen {...props} onLogin={handleLogin} />}
+              </Stack.Screen>
+              <Stack.Screen name="SignUp">
+                {(props) => <SignUpScreen />}
               </Stack.Screen>
             
           </Stack.Navigator>)

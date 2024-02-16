@@ -201,6 +201,7 @@ const WordBook = ({ onLogout }) => {
                     children={() => <ChatsStackNavigator type="kartlar" />}
                     options={{ headerShown: false }}
                 />
+                
 
                 <Tab.Screen
                     name="Profil"
@@ -212,7 +213,9 @@ const WordBook = ({ onLogout }) => {
                     children={() => <ChatsStackNavigator type="günlükyaz" />}
                     options={{ headerShown: false }}
                 />
+                
             </Tab.Navigator>
+
     );
 }
 const styles = StyleSheet.create({

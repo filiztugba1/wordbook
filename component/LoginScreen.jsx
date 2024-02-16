@@ -14,6 +14,10 @@ const LoginScreen = ({ navigation, onLogin }) => {
     }
   };
 
+  const handleSignUp = () => {
+    navigation.navigate('SignUp'); // SignUp ekranını çağır
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.logo}>Wordbook</Text>
@@ -39,7 +43,7 @@ const LoginScreen = ({ navigation, onLogin }) => {
         <Text style={styles.loginText}>Giriş Yap</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.loginBtn} >
+      <TouchableOpacity style={styles.loginBtn} onPress={handleSignUp}>
         <Text style={styles.loginText}>Üye Ol</Text>
       </TouchableOpacity>
     </View>
