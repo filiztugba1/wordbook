@@ -1,17 +1,42 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-
+import { login } from './apiService';
 const LoginScreen = ({ navigation, onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [userData, setUserData] = useState(null);
 
-  const handleLogin = () => {
-    if (username === 'demo' && password === 'demo') {
-      onLogin(); // Oturum açma işlemi başarılı olduğunda onLogin fonksiyonunu çağır
-    } else {
+  const handleLogin = async ()  => {
+    try {
+      const loginform = { username: username, password };
+      if(username!=='' && password!=='')
+      {
+        const user = await login(loginform);
+        setUserData(user);
+        if(user!=='' && user!==undefined)
+        {
+          localStorage.setItem('AccessToken',user.accessToken);
+          onLogin();
+        }
+        else
+        {
+          setError('Kullanıcı adı veya şifre hatalı.');
+        }
+      }else{
+        setError('Kullanıcı adı ve şifre boş bırakılamaz.');
+      }
+      
+      
+    } catch (error) {
       setError('Kullanıcı adı veya şifre hatalı.');
     }
+
+    // if (username === 'demo' && password === 'demo') {
+    //   onLogin(); // Oturum açma işlemi başarılı olduğunda onLogin fonksiyonunu çağır
+    // } else {
+    //   setError('Kullanıcı adı veya şifre hatalı.');
+    // }
   };
 
   const handleSignUp = () => {

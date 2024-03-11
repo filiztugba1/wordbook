@@ -14,110 +14,95 @@ import Modal from 'react-native-modal';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
 import { TextInput, IconButton,Menu } from 'react-native-paper';
-import { wordGroupList,wordGroupAdd,wordGroupUpdate,wordGroupDelete } from './apiService';
-const AddGroupFormComponent = () => {
+import { meansTypeList,meansTypeAdd,meansTypeUpdate,meansTypeDelete } from './apiService';
+const AddMainFormComponent = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [inputValue, setInputValue] = useState('');
-    const [selectValue, setSelectValue] = useState({});
+    const [formData, setFormData] = useState({mt_id:0,mt_name:'',mt_short_name:'',WordMeans:[],Words:[]});
     const [title, setTitle] = useState("");
-    const [isAddOrUpdate, setisAddOrUpdate] = useState(0);
-    const [formData, setFormData] = useState({wg_id:0,wg_parent_id:'',wg_name:'',words:[],grammerNote:[],user_id:0,User:null});
     const [items, setItems] = useState([]);
-    const fetchwordGroupData = async () => {
-        const chats = await wordGroupList();
+    const fetchmeansTypeData = async () => {
+        const chats = await meansTypeList();
         setItems(chats);
       };
     useEffect(() => {
-        fetchwordGroupData(); 
+        fetchmeansTypeData(); 
       }, []); 
-      const handleInputChange = (name, value) => {
+
+    const handleInputChange = (name, value) => {
         setFormData((prevData) => ({
           ...prevData,
           [name]: value,
         }));
       };
-    const openModal = (item) => {
-        if(item.wg_id==0)
-        {
-            setTitle('Ana Grup Ekleme');
-        }
-        else
-        {
-            setTitle(item.wg_name+' Alt Grup Ekleme');
-        }
-        
-       setFormData({wg_id:0,wg_parent_id:item.wg_id,wg_name:'',words:[],grammerNote:[],user_id:0,User:null});
-        setIsModalVisible(true);
-    };
- 
     
 
+    const openModal = () => {
+        setTitle('Tip Ekleme');
+        setFormData({mt_id:0,mt_name:"",mt_short_name:"",WordMeans:[],Words:[]});
+        setIsModalVisible(true);
+    };
     const closeModal = () => {
         setIsModalVisible(false);
     };
 
     const handleSubmit = () => {
-        if(formData.wg_name=='')
+
+        if(formData.mt_name=='' || formData.mt_short_name=='')
         {
             alert('Tip adı ve tip kısa adı alanları zorunlu alanlardır lütfen doldurunuz');
             return 0;
         }
-        if(formData.wg_id!=='' && +formData.wg_id!==0) //// güncelleme olacak
+        if(formData.mt_id!=='' && +formData.mt_id!==0) //// güncelleme olacak
         {
-            const fetchwordGroupUpdate= async () => {
-                await wordGroupUpdate(formData).then((x) => {
-                    fetchwordGroupData(); 
+            const fetchmeansTypeUpdate= async () => {
+                await meansTypeUpdate(formData).then((x) => {
+                    fetchmeansTypeData(); 
                   }).catch(err => console.log('hata var'));
               };
-              fetchwordGroupUpdate(); 
+              fetchmeansTypeUpdate(); 
         }
         else //// ekleme yapılacak
         {
-            const fetchwordGroupAdd= async () => {
-                await wordGroupAdd(formData).then((x) => {
-                    fetchwordGroupData(); 
+            const fetchmeansTypeAdd= async () => {
+                await meansTypeAdd(formData).then((x) => {
+                    fetchmeansTypeData(); 
                   }).catch(err => console.log('hata var'));
               };
-              fetchwordGroupAdd(); 
-              setFormData({wg_id:0,wg_parent_id:'',wg_name:'',words:[],grammerNote:[],user_id:0,User:null}); //// bu kısım eklede girmeli
+              fetchmeansTypeAdd(); 
+              setFormData({mt_id:0,mt_name:'',mt_short_name:'',WordMeans:[],Words:[]}); //// bu kısım eklede girmeli
             
         }
         closeModal();
     };
 
     const handleEdit = (item) => {
-        setTitle(item.wg_name+' Güncelleme');
-        setFormData({grammerNote:[],wg_id:item.wg_id,wg_name:item.wg_name,wg_parent_id:item.wg_parent_id,words:[],user_id:0,User:null});
+        setTitle('Tip Güncelleme');
+        setFormData({mt_id:item.mt_id,mt_name:item.mt_name,mt_short_name:item.mt_short_name,WordMeans:[],Words:[]});
         setIsModalVisible(true);
     };
 
-    const handleSubEdit = (item,child) => {
-        setTitle(item.wg_name+' > '+child.wg_name+' Güncelleme');
-        setFormData({grammerNote:[],wg_id:child.wg_id,wg_name:child.wg_name,wg_parent_id:child.wg_parent_id,words:[],user_id:0,User:null});
-        setIsModalVisible(true);
-    };
+   
 
     const handleDelete = (item) => {
-        const fetchwordGroupDelete= async () => {
-            await wordGroupDelete(item.wg_id).then((x) => {
-                fetchwordGroupData(); 
+        const fetchmeansTypeDelete= async () => {
+            await meansTypeDelete(item.mt_id).then((x) => {
+                fetchmeansTypeData(); 
               }).catch(err => console.log('hata var'));
           };
-          fetchwordGroupDelete(); 
-          setFormData({wg_id:0,wg_parent_id:'',wg_name:'',words:[],grammerNote:[],user_id:0,User:null}); //// bu kısım eklede girmeli
+          fetchmeansTypeDelete(); 
+          setFormData({mt_id:0,mt_name:'',mt_short_name:'',WordMeans:[],Words:[]}); //// bu kısım eklede girmeli
     };
 
     const ChatItem = ({ item }) => {
         return (
-            <View key={item.wg_id} style={{ backgroundColor: '#e9e7e7', marginBottom: 4, borderRadius: 5 }}>
+            <View style={{ backgroundColor: '#e9e7e7', marginBottom: 4, borderRadius: 5 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 5, marginHorizontal: 10, backgroundColor: 'white', borderColor: '#e9e7e7', borderWidth: 1, padding: 5, borderRadius: 5 }}>
-                    <Text style={{ color: '#000' }}>{item.wg_name}</Text>
-                    <View key={item.wg_id} style={{ flexDirection: 'row' }}>
+                    <Text style={{ color: '#000' }}>{item.mt_name} <span style={{ backgroundColor: 'orange', color: 'white', paddingLeft: 4, paddingRight: 4, borderRadius: 2, marginBottom: 2 }}> {item.mt_short_name} </span></Text>
+                    
+                  
+                    <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity onPress={() => handlePlay(item)}>
                             <Ionicons name="play" size={20} color="orange" style={{ marginLeft: 10, marginTop: -2 }} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => openModal(item)}>
-                            <FontAwesome name="plus" size={20} color="green" style={{ marginLeft: 10 }} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleEdit(item)}>
                             <FontAwesome name="edit" size={20} color="blue" style={{ marginLeft: 10 }} />
@@ -130,23 +115,7 @@ const AddGroupFormComponent = () => {
 
 
                 </View>
-                {
-                    item.child.map((value, index) =>
-                        <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 5, marginHorizontal: 10, backgrounDColor: 'white', borderColor: '#e9e7e7', borderWidth: 1, padding: 5, borderRadius: 5 }}>
-                            <Text style={{ color: '#000' }}>{value.wg_name}</Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <TouchableOpacity onPress={() => handleSubPlay(value.id)}>
-                                    <Ionicons name="play" size={20} color="orange" style={{ marginLeft: 10, marginTop: -2 }} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handleSubEdit(item,value)}>
-                                    <FontAwesome name="edit" size={20} color="blue" style={{ marginLeft: 10 }} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() =>  handleDelete(value)}>
-                                    <FontAwesome name="trash" size={20} color="red" style={{ marginLeft: 10 }} />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    )}
+             
             </View>
         );
     };
@@ -158,11 +127,13 @@ const AddGroupFormComponent = () => {
             <View style={styles.listItem}>
                 <View style={styles.formContainer}>
                     <View style={[styles.tabMenu, { backgroundBottomColor: 'white', borderBottomColor: '#e9e7e7', borderBottomWidth: 1, paddingBottom: 5 }]}>
-                        <Text style={[styles.buttonText]}>Kelime Grup Listesi</Text>
+                        <Text style={[styles.buttonText]}>Kart Anlam Tipleri</Text>
                     </View>
-                    <TouchableOpacity onPress={() => openModal(formData)}>
+                    <TouchableOpacity onPress={() => openModal({})}>
                     <View style={[styles.tabMenu, { backgroundColor: '#e9e7e7', borderColor: '#e9e7e7', borderWidth: 1, marginBottom: 10, padding: 5, borderRadius: 5 }]}>
-                            <Text style={styles.buttonText}>Ana Grup Ekleme</Text>
+                       
+                            <Text style={styles.buttonText}>Tip Ekle</Text>
+                        
                     </View>
                     </TouchableOpacity>
                     <FlatList
@@ -170,9 +141,6 @@ const AddGroupFormComponent = () => {
                         renderItem={({ item }) => (
                             <ChatItem
                                 item={item}
-                            // onItemLongPress={() => onItemLongPress(item.id)}
-                            // onItemPress={() => onItemPress(item.id)}
-                            // selectedItems={selectedItems}
                             />
                         )}
                         keyExtractor={(item) => item.id}
@@ -180,30 +148,37 @@ const AddGroupFormComponent = () => {
                     />
                 </View>
 
-
-
-                {/* Modal */}
                 <Modal isVisible={isModalVisible} onBackdropPress={closeModal}>
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        
-
                         <View style={{ width: 300, padding: 20, backgroundColor: 'white', borderRadius: 10 }}>
-                       
                         <View style={[styles.tabMenu, { backgroundBottomColor: 'white', borderBottomColor: '#e9e7e7', borderBottomWidth: 1, paddingBottom: 5 }]}>
                             <Text style={[styles.buttonText]}><b>{title}</b></Text>
                         </View>
 
-                            <Text><b>Grup Adı</b></Text>
+                            <Text style={{marginBottom:'2px'}}><b>Tip Adı</b></Text>
+                            <TextInput
+                                
+
+                                style={[styles.input, { backgroundColor: 'white' }]}
+                                value={formData.mt_name}
+                                placeholder='Tipi giriniz'
+                                onChangeText={(text) => handleInputChange('mt_name',text)}
+                                name='mt_name'
+
+                            />
+
+                            <Text style={{marginBottom:'2px'}}><b>Kısa Kodu</b></Text>
                             <TextInput
                                 style={[styles.input, { backgroundColor: 'white' }]}
-                                value={formData.wg_name}
-                                placeholder='Grubu giriniz.'
-                                onChangeText={(text) => handleInputChange('wg_name',text)}
-                                name='wg_name'
+                                value={formData.mt_short_name}
+                                placeholder='Tip kısa kod giriniz'
+                                onChangeText={(text) => handleInputChange('mt_short_name',text)}
+                                name='mt_short_name'
                             />
+                            
                             <View style={styles.tabMenu}>
-                                <Button title="Submit" onPress={handleSubmit} />
-                                <Button title="Close" onPress={closeModal} />
+                                <Button title="Submit" style={{width:'100%'}} onPress={handleSubmit} />
+                                <Button title="Close" style={{width:'100%'}} onPress={closeModal} />
                             </View>
 
                         </View>
@@ -343,4 +318,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default AddGroupFormComponent;
+export default AddMainFormComponent;

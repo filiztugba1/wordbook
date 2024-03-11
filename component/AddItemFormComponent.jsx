@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Picker,
   Button,
   Image,
-  FlatList
+  FlatList,
+  Picker
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,26 +17,74 @@ import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
 import * as XLSX from "xlsx";
 import { Ionicons } from '@expo/vector-icons';
+import { TextInput, IconButton,Menu } from 'react-native-paper';
+import { SelectList } from 'react-native-dropdown-select-list'
+import { wordGroups,meansType } from './apiService';
 const AddItemForm = ({ onAddItem }) => {
   const [formData, setFormData] = useState({
-    en: '',
-    zf: '',
-    image: null, // Resmi null olarak başlatın
-    example1: '',
-    example2: '',
-    type: '',
+    wg_id: 0,
+    wg_sub_id: 0,
+    w_name: '',
+    w_id:0,
+    w_mains:[],
+    w_image:'',
+    examples:[],
+    irregular:[],
   });
 
   const [formDataMean, setformDataMean] = useState({ mean: '', type: '' });
   const [formDataMeans, setformDataMeans] = useState([]);
   const [formDataExp, setformDataExp] = useState({ name: '' });
   const [formDataExps, setformDataExps] = useState([]);
+  const [subGroupIsActive, setsubGroupIsActive] = useState(false);
+
+  const [groupData, setgroupData] = React.useState([]);
+const [typeData, setmeanTypesData] = React.useState([]);
+const [groupSubData, setgroupSubData] = React.useState([]);
+
+useEffect(() => {
+  const fetchgroupData = async () => {
+      const chats = await wordGroups();
+      setgroupData(chats);
+  };
+  const fetchmeansTypeData = async () => {
+    const chats = await meansType();
+    setmeanTypesData(chats);
+  };
+  fetchgroupData(); 
+  fetchmeansTypeData(); 
+}, []); 
+
 
   const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    if(name==='wg_id')
+    {
+      handleInputChange('wg_sub_id',0);
+      const mean=groupData.find(x=>x.key===value);
+      if(mean.child.length!==0)
+      {
+        const formattedData = mean.child.map(item => {
+          // Her bir öğe için yeni bir nesne oluştur
+          return {
+            key: item.wg_id.toString(), // Key değeri wg_id'nin bir dize olarak dönüştürülmüş hali
+            value: item.wg_name, // Value değeri wg_name'in kendisi
+            parent_id:item.wg_parent_id
+          };
+        });
+
+         setgroupSubData(formattedData);
+        setsubGroupIsActive(true);
+      }
+      else
+      {
+        setgroupSubData([]);
+        setsubGroupIsActive(false);
+      }
+    }
   };
 
   const handleformDataMeans = (name, value) => {
@@ -70,6 +117,7 @@ const AddItemForm = ({ onAddItem }) => {
 
   const handleAddMeans = () => {
     // Eklemeye çalıştığınız veri zaten var mı kontrol et
+    console.log(formDataMeans);
     const isMeanExists = formDataMeans.some(item => item.mean === formDataMean.mean && item.type === formDataMean.type);
 
     if (isMeanExists) {
@@ -117,7 +165,7 @@ const AddItemForm = ({ onAddItem }) => {
     if (!result.cancelled) {
       setFormData((prevData) => ({
         ...prevData,
-        image: result.uri,
+        w_image: result.uri,
       }));
     }
   };
@@ -135,34 +183,54 @@ const AddItemForm = ({ onAddItem }) => {
   };
 
 
+const [selected, setSelected] = React.useState("");
+const [typeselected, settypeSelected] = React.useState("");
+
+
+
+
   return (
+<>
 
-    <View style={[styles.formContainer, { borderColor: '#e9e7e7', borderWidth: 1, borderStyle: 'solid', zIndex: 1 }]}>
-      <Text style={styles.label}>Grubu</Text>
-      <Picker
-        selectedValue={formData.type}
-        style={styles.picker}
-        onValueChange={(itemValue) => handleInputChange('type', itemValue)}
-      >
-        <Picker.Item label="Seçiniz" value="" />
-        <Picker.Item label="A1" value="0" />
-        <Picker.Item label="A2" value="1" />
-        <Picker.Item label="B1" value="2" />
-        <Picker.Item label="B2" value="3" />
-        <Picker.Item label="C1" value="4" />
-        <Picker.Item label="C2" value="5" />
-        {/* İsteğe bağlı olarak diğer tipleri ekleyebilirsiniz */}
-      </Picker>
+<View style={[styles.formContainer, { borderTopColor: '#e9e7e7', borderTopWidth: 1, borderStyle: 'solid', zIndex: 1,borderRadius:0,padding:10,paddingTop:20 }]}>
+      <Text style={[styles.label]}><b>Grubu</b></Text>
+   
+      <SelectList 
+        setSelected={(val) =>  handleInputChange('wg_id', val)} 
+        data={groupData} 
+        save="key"
+        name="wg_id"
+        boxStyles={{borderBottomLeftRadius:0,borderBottomRightRadius:0,borderTopLeftRadius:5,borderTopRightRadius:5}}
+        dropdownStyles={{borderTopLeftRadius:0,borderTopRightRadius:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+    />
+        
+        {subGroupIsActive?
+        <View>
+     <Text style={styles.label}><b>Alt Grubu</b></Text>
+   
+   <SelectList 
+     setSelected={(val) =>  handleInputChange('wg_sub_id', val)} 
+     data={groupSubData} 
+     save="key"
+     name="wg_sub_id"
+     boxStyles={{borderBottomLeftRadius:0,borderBottomRightRadius:0,borderTopLeftRadius:5,borderTopRightRadius:5}}
+     dropdownStyles={{borderTopLeftRadius:0,borderTopRightRadius:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+ />
+     </View>
+     :''}
+     
 
-      <Text style={styles.label}>İngilizce Kelime:</Text>
-      <TextInput
-        style={styles.input}
-        value={formData.en}
-        placeholder='İngilizce kelimeyi yazınız'
-        onChangeText={(text) => handleInputChange('en', text)}
-      />
+      <Text style={[styles.label,{marginTop:10}]}><b>İngilizce Kelime</b></Text>
+ <TextInput
+          style={[styles.input, { backgroundColor: 'white' }]}
+          value={formData.w_name}
+          placeholder='İngilizce kelimeyi yazınız'
+          onChangeText={(text) => handleInputChange('w_name', text)}
+          name='w_name'
+        />
 
-      <Text style={styles.label}>Anlamları:</Text>
+      {/* burası arraye atılacak */}
+      <Text style={styles.label}><b>Anlamları:</b></Text>
       <View style={styles.means}>
         <Text style={styles.label}>Anlamı</Text>
         <TextInput
@@ -172,21 +240,16 @@ const AddItemForm = ({ onAddItem }) => {
           onChangeText={(text) => handleformDataMeans('mean', text)}
         />
         <Text style={styles.label}>Tipi</Text>
-        <Picker
-          selectedValue={formDataMean.type}
-          style={styles.picker}
-          onValueChange={(itemValue) => handleformDataMeans('type', itemValue)}
-        >
-          <Picker.Item label="Seçiniz" value="" />
-          <Picker.Item label="Cümle" value="c." />
-          <Picker.Item label="Zarf" value="zf." />
-          <Picker.Item label="Zamir" value="zm." />
-          <Picker.Item label="Sıfat" value="s." />
-          <Picker.Item label="İsim" value="i." />
-          <Picker.Item label="Fiil" value="f." />
-          {/* İsteğe bağlı olarak diğer tipleri ekleyebilirsiniz */}
-        </Picker>
-        <TouchableOpacity style={[styles.addButton, { backgroundColor: 'blue', color: 'white' }]} onPress={handleAddMeans}>
+
+        <SelectList 
+        setSelected={(val) => handleformDataMeans('type', val)} 
+        data={typeData} 
+        save="key"
+        boxStyles={{borderBottomLeftRadius:0,borderBottomRightRadius:0,borderTopLeftRadius:5,borderTopRightRadius:5}}
+        dropdownStyles={{borderTopLeftRadius:0,borderTopRightRadius:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+    />
+
+        <TouchableOpacity style={[styles.addButton, { backgroundColor: 'blue', color: 'white',marginTop:5 }]} onPress={handleAddMeans}>
           <Text style={[styles.buttonText, { color: 'white' }]}>Ekle</Text>
         </TouchableOpacity>
 
@@ -210,13 +273,14 @@ const AddItemForm = ({ onAddItem }) => {
 
       </View>
 
-      <Text style={styles.label}>Image URL:</Text>
+      <Text style={styles.label}><b>Image URL:</b></Text>
       <View style={[styles.means, { flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
-        {formData.image && <Image source={{ uri: formData.image }} style={{ width: 200, height: 200 }} />}
+        {formData.w_image && <Image source={{ uri: formData.w_image }} style={{ width: 200, height: 200 }} />}
         <Button title="Resim Ekle" onPress={pickImage} />
       </View>
-
-      <Text style={styles.label}>Örnek Çümleler:</Text>
+   
+      {/* bu kısım arraye atılacak */}
+      <Text style={styles.label}><b>Örnek Çümleler:</b></Text>
       <View style={styles.means}>
         <Text style={styles.label}>Çümle</Text>
         <TextInput
@@ -247,10 +311,11 @@ const AddItemForm = ({ onAddItem }) => {
 
       </View>
 
-      <TouchableOpacity onPress={handleAddItem} style={[styles.addButton, { backgroundColor: 'blue', color: 'white' }]}>
-        <Text style={[styles.buttonText, { color: 'white' }]}>Kelime Kartını Ekle</Text>
-      </TouchableOpacity>
+     
     </View>
+     <TouchableOpacity onPress={handleAddItem} style={[styles.addButton, { backgroundColor: 'blue', color: 'white' }]}>
+     <Text style={[styles.buttonText, { color: 'white' }]}>Kelime Kartını Ekle</Text>
+   </TouchableOpacity></>
   );
 };
 
@@ -296,6 +361,7 @@ const ExcelAddItemForm = ({ onBulkAddItems }) => {
 
       const duzenliIfade = /\s*\[.*?\]\s*/g;
       let fullData=[];
+      console.log(d);
       d.map((m, index) => {
         let data = m;
         let column = {};
@@ -345,13 +411,13 @@ const ExcelAddItemForm = ({ onBulkAddItems }) => {
       }
       )
       console.log(fullData);
-      setItems(fullData);
+       setItems(fullData);
       
     });
   };
 
   return (
-    <View style={styles.formContainer}>
+    <View style={[styles.formContainer, { borderTopColor: '#e9e7e7', borderTopWidth: 1, borderStyle: 'solid', zIndex: 1,borderRadius:0,padding:10,paddingTop:20,height:'100%' }]}>
       <input
         style={styles.fileBorder}
         type="file"
@@ -360,7 +426,7 @@ const ExcelAddItemForm = ({ onBulkAddItems }) => {
           readExcel(file);
         }}
       />
-      <View style={styles.container}>
+      {/* <View style={styles.container}> */}
         <View style={styles.addItemContainer}>
           {items.length!=0? <FlatList
             data={items}
@@ -372,10 +438,10 @@ const ExcelAddItemForm = ({ onBulkAddItems }) => {
                     // selectedItems={selectedItems}
                 />
             )}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.en}
             style={styles.flatList}
         />:<></>}
-        </View>
+        {/* </View> */}
         </View>
     </View>
   );
@@ -419,7 +485,7 @@ const ChatItem = ({ item}) => {
                   <Text style={styles.wordMain}>Adverbs : </Text>
                   <Text style={styles.wordMain}>
                   {adverbs.map((m, index) => 
-                      <>{m.mean}{index < adverbs.length - 1 ? ',' : ''}</>
+                      <View key={m.mean}>{m.mean}{index < adverbs.length - 1 ? ',' : ''}</View>
                   )}
                   </Text>
               </View>
@@ -431,7 +497,7 @@ const ChatItem = ({ item}) => {
                   <Text style={styles.wordMain}>Noun : </Text>
                   <Text style={styles.wordMain}>
                   {nouns.map((m, index) => 
-                      <>{m.mean}{index < nouns.length - 1 ? ',' : ''}</>
+                      <View key={m.mean}>{m.mean}{index < nouns.length - 1 ? ',' : ''}</View>
                   )}
                   </Text>
               </View>
@@ -444,7 +510,7 @@ const ChatItem = ({ item}) => {
                   <Text style={styles.wordMain}>Adjective : </Text>
                   <Text style={styles.wordMain}>
                   {adjectives.map((m, index) => 
-                      <>{m.mean}{index < adjectives.length - 1 ? ',' : ''}</>
+                      <View key={m.mean}>{m.mean}{index < adjectives.length - 1 ? ',' : ''}</View>
                   )}
                   </Text>
               </View>
@@ -458,7 +524,7 @@ const ChatItem = ({ item}) => {
                   <Text style={styles.wordMain}>Pronoun : </Text>
                   <Text style={styles.wordMain}>
                   {pronouns.map((m, index) => 
-                      <>{m.mean}{index < pronouns.length - 1 ? ',' : ''}</>
+                      <View key={m.mean}>{m.mean}{index < pronouns.length - 1 ? ',' : ''}</View>
                   )}
                   </Text>
               </View>
@@ -471,7 +537,7 @@ const ChatItem = ({ item}) => {
                   <Text style={styles.wordMain}>Verb : </Text>
                   <Text style={styles.wordMain}>
                   {verbs.map((m, index) => 
-                      <>{m.mean}{index < verbs.length - 1 ? ',' : ''}</>
+                      <View key={m.mean}>{m.mean}{index < verbs.length - 1 ? ',' : ''}</View>
                   )}
                   </Text>
               </View>
@@ -517,8 +583,8 @@ const AddItemFormComponent = () => {
 
   return (
     <ScrollView style={{ flexGrow: 1 }}>
-      <View style={styles.listItem}>
-        <View style={styles.formContainer}>
+      
+        <View style={[styles.formContainer, { borderTopColor: '#e9e7e7', borderTopWidth: 1, borderStyle: 'solid', zIndex: 1,borderRadius:0,padding:10,paddingTop:20 }] }>
           <View style={styles.tabMenu}>
             <TouchableOpacity onPress={() => setActiveForm('singleItem')} style={[styles.tabButton, activeForm === 'singleItem' && styles.activeTabButton]}>
               <Text style={styles.buttonText}>Kelime Kartı Oluştur</Text>
@@ -527,12 +593,12 @@ const AddItemFormComponent = () => {
               <Text style={styles.buttonText}>Toplu Yükle</Text>
             </TouchableOpacity>
           </View>
-          <View>
+          <View style={{marginTop:'-2px'}}>
             {activeForm === 'singleItem' && <AddItemForm onAddItem={handleAddItem} />}
             {activeForm === 'bulkItem' && <ExcelAddItemForm onBulkAddItems={handleBulkAddItems} />}
           </View>
         </View>
-      </View>
+      
     </ScrollView>
   );
 };
@@ -570,31 +636,36 @@ const styles = StyleSheet.create({
   },
 
   listItem: {
-    padding: 10,
-    borderRadius: 10,
+    // padding: 10,
+    // borderRadius: 10,
     marginBottom: 10,
+    paddingBottom:20
   },
   tabMenu: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 10,
+    marginBottom: 0,
+    zIndex: 10,
   },
   tabButton: {
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
-    zIndex: 2
+    zIndex: 10,
+    paddingBottom:20
   },
   activeTabButton: {
     backgroundColor: 'white',
     borderColor: '#e9e7e7',  // Sağdan, soldan ve üstten border rengi
+    borderBottomColor: '#fff',  // Sağdan, soldan ve üstten border rengi
     borderWidth: 1,        // Sağdan, soldan ve üstten border kalınlığı
     borderStyle: 'solid',  // Sağdan, soldan ve üstten border stil
-
+    
     marginTop: -1,         // Sağdan, soldan ve üstten border kalınlığı için ayar
     marginRight: -1,       // Sağdan, soldan ve üstten border kalınlığı için ayar
     marginLeft: -1,
-    zIndex: 2
+    zIndex: 2,
+    paddingBottom:20
 
   },
 

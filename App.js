@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect  } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from './component/LoginScreen';
@@ -16,8 +16,10 @@ export default function App() {
     // Örneğin, kimlik doğrulama, kullanıcı bilgilerini kontrol etme vb.
 
     // Oturum başarılı ise isAuthenticated değerini true yap
+    
     setIsAuthenticated(true);
   };
+
 
   // Kullanıcının oturumunu kapatan fonksiyon
   const handleLogout = () => {
@@ -25,8 +27,21 @@ export default function App() {
     // Örneğin, oturum bilgilerini temizleme, kullanıcıyı çıkış sayfasına yönlendirme vb.
 
     // Oturum kapatma işlemi yapıldıktan sonra isAuthenticated değerini false yap
+    localStorage.removeItem('AccessToken');
     setIsAuthenticated(false);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let accesstoken=localStorage.getItem('AccessToken');
+      if(accesstoken!==undefined && accesstoken!=='' && accesstoken!==null)
+      {
+        setIsAuthenticated(true);
+      }
+    };
+
+    fetchData(); // API isteğini gönder
+  }, []); // Boş bağımlılık dizisi, sadece bileşen yüklendiğinde çalışmasını sağlar
 
   return (
     <NavigationContainer>
