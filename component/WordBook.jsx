@@ -253,7 +253,7 @@ const WordBook = ({ onLogout }) => {
                 <TouchableOpacity onPress={() => navigation.navigate('Profil')}>
                     <Text style={styles.dropdownItem}>Profil</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Grammder Notlarim')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Grammar Notlarım')}>
                     <Text style={styles.dropdownItem}>Grammer Notlarım</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('Yeni Kart Ekle')}>

@@ -222,5 +222,22 @@ const words = async () => {
 //   }
 // };
 
+
+const wordsAdd = async (formdata) => {
+  const accessToken = localStorage.getItem('AccessToken');
+      try {
+      const response = await apiService.post(`${API_URL}/Words/bulksave`,formdata,{
+          headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+          }
+      });
+    return response.data;
+
+  } catch (error) {
+    throw error;
+  }
+};
+
 export { login,words,wordGroups,meansType,meansTypeList,meansTypeAdd,meansTypeUpdate,meansTypeDelete,
-    wordGroupList,wordGroupAdd,wordGroupUpdate,wordGroupDelete };
+    wordGroupList,wordGroupAdd,wordGroupUpdate,wordGroupDelete,wordsAdd };

@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TextInput, IconButton,Menu } from 'react-native-paper';
 import { SelectList } from 'react-native-dropdown-select-list'
 import { wordGroups,meansType } from './apiService';
+import { wordsAdd,wordUpdate} from './apiService';
 const AddItemForm = ({ onAddItem }) => {
   const [formData, setFormData] = useState({
     wg_id: 0,
@@ -130,19 +131,19 @@ useEffect(() => {
   };
   const handleAddItem = () => {
     // Form verilerini kullanarak yeni bir öğe oluşturun
-    const newItem = {
-      id: generateUniqueId(), // Bu, benzersiz bir kimlik üretecek bir işlev olmalı
-      en: formData.en,
-      means: [{ mean: formData.zf, type: 'zf.' }],
-      examples: [
-        { name: formData.example1 },
-        { name: formData.example2 },
-      ],
-      image: formData.image,
-    };
+    // const newItem = {
+    //   id: generateUniqueId(), // Bu, benzersiz bir kimlik üretecek bir işlev olmalı
+    //   en: formData.en,
+    //   means: [{ mean: formData.zf, type: 'zf.' }],
+    //   examples: [
+    //     { name: formData.example1 },
+    //     { name: formData.example2 },
+    //   ],
+    //   image: formData.image,
+    // };
 
     // onAddItem işlevini çağırarak yeni öğeyi iletilen işlevi çağırın
-    onAddItem(newItem);
+    // onAddItem(newItem);
 
     // Form verilerini sıfırlayın
     setFormData({
@@ -285,7 +286,7 @@ const [typeselected, settypeSelected] = React.useState("");
         <Text style={styles.label}>Çümle</Text>
         <TextInput
           style={[styles.input, { backgroundColor: 'white' }]}
-          value={formData.formDataExp}
+          value={formDataExp.name}
           onChangeText={(text) => handleformDataExp('name', text)}
         />
         <TouchableOpacity style={[styles.addButton, { backgroundColor: 'blue', color: 'white' }]} onPress={handleAddExps}>
@@ -322,6 +323,64 @@ const [typeselected, settypeSelected] = React.useState("");
 const ExcelAddItemForm = ({ onBulkAddItems }) => {
 
   const [items, setItems] = useState([]);
+  const [groupData, setgroupData] = React.useState([]);
+const [typeData, setmeanTypesData] = React.useState([]);
+const [groupSubData, setgroupSubData] = React.useState([]);
+const [subGroupIsActive, setsubGroupIsActive] = useState(false);
+
+
+const handleInputChange = (name, value) => {
+  setFormData((prevData) => ({
+    ...prevData,
+    [name]: value,
+  }));
+  if(name==='wg_id')
+  {
+    handleInputChange('wg_sub_id',0);
+    const mean=groupData.find(x=>x.key===value);
+    if(mean.child.length!==0)
+    {
+      const formattedData = mean.child.map(item => {
+        // Her bir öğe için yeni bir nesne oluştur
+        return {
+          key: item.wg_id.toString(), // Key değeri wg_id'nin bir dize olarak dönüştürülmüş hali
+          value: item.wg_name, // Value değeri wg_name'in kendisi
+          parent_id:item.wg_parent_id
+        };
+      });
+
+       setgroupSubData(formattedData);
+      setsubGroupIsActive(true);
+    }
+    else
+    {
+      setgroupSubData([]);
+      setsubGroupIsActive(false);
+    }
+  }
+};
+const [formData, setFormData] = useState({
+  wg_id: 0,
+  wg_sub_id: 0,
+  w_name: '',
+  w_id:0,
+  w_mains:[],
+  w_image:'',
+  examples:[],
+  irregular:[],
+});
+useEffect(() => {
+  const fetchgroupData = async () => {
+      const chats = await wordGroups();
+      setgroupData(chats);
+  };
+  const fetchmeansTypeData = async () => {
+    const chats = await meansType();
+    setmeanTypesData(chats);
+  };
+  fetchgroupData(); 
+  fetchmeansTypeData(); 
+}, []); 
 
   const readExcel = (file) => {
     const promise = new Promise((resolve, reject) => {
@@ -370,64 +429,132 @@ const ExcelAddItemForm = ({ onBulkAddItems }) => {
         for (const key in data) {
           if (data.hasOwnProperty(key)) {
             const value = data[key];
-            console.log(`${key}: ${value}`);
+             console.log(`${key}: ${value}`);
             if (key == 'en') {
-              column.en = value;
+              column.w_id = 0;
+              column.w_name = value;
+              column.foreign_language_id = 0;
+              column.wg_id = 0;
+              column.w_image = '';
+              column.w_is_success = false;
+              column.update_date = "2024-03-13";
+              column.create_date = "2024-03-13";
+      
             }
             if (key.includes('tr')) {
               let tr = {};
+              tr.wm_id=0;
+              var mtypeBul=null;
               if (value.includes('[zf.]')) {
-                tr.type = 'zf.';
+                mtypeBul=typeData.find(x=>x.mt_short_name=='zf.');
               }
               if (value.includes('[i.]')) {
-                tr.type = 'i.';
+                mtypeBul=typeData.find(x=>x.mt_short_name=='i.');
               }
               if (value.includes('[s.]')) {
-                tr.type = 's.';
+                mtypeBul=typeData.find(x=>x.mt_short_name=='s.');
               }
               if (value.includes('[c.]')) {
-                tr.type = 'c.';
+                mtypeBul=typeData.find(x=>x.mt_short_name=='c.');
               }
               if (value.includes('[f.]')) {
-                tr.type = 'f.';
+                mtypeBul=typeData.find(x=>x.mt_short_name=='f.');
               }
               if (value.includes('[zm.]')) {
-                tr.type = 'zm.';
+                mtypeBul=typeData.find(x=>x.mt_short_name=='zm.');
               }
-              tr.mean = value.replace(duzenliIfade, '');
+
+              tr.update_date = "2024-03-13T14:09:54.766Z";
+              tr.create_date = "2024-03-13T14:09:54.766Z";
+              tr.mt_id = 0;
+              tr.wm_name = value.replace(duzenliIfade, '');
+
               trs.push(tr);
             }
             if (key.includes('exp')) {
               let exp = {};
-              exp.name = value;
+              exp.we_id = 0;
+              exp.we_name = value;
+              exp.w_id = 0;
+              exp.update_date = "2024-03-13T14:09:54.766Z";
+              exp.create_date = "2024-03-13T14:09:54.766Z";
               exps.push(value);
             }
 
           }
         }
-        column.means=trs;
-        column.examples=exps;
+        column.word_groups_model=[];
+        column.word_means_model=trs;
+        column.word_example_model=exps;
+        console.log(column);
         fullData.push(column);
       }
       )
-      console.log(fullData);
-       setItems(fullData);
+      // console.log(fullData);
+        setItems(fullData);
       
     });
   };
-
+  const handleAddItem = () => {
+    if(formData.wg_id==undefined || formData.wg_id=='' || formData.wg_id==null)
+    {
+      alert('Group alanı zorunlu alandır.Lütfen zorunlu alanı doldurunuz');
+    }
+    if(items.length===0)
+    {
+      alert('Lütfen dosya seçiniz');
+    }
+    const fetchwordsAdd= async () => {
+      await wordsAdd({
+        group:+formData.wg_id,
+        sub_group:+formData.wg_sub_id,
+        words:items
+      }).then((x) => {
+          // fetchwordGroupData(); 
+        }).catch(err => console.log(err));
+    };
+    fetchwordsAdd(); 
+  };
   return (
     <View style={[styles.formContainer, { borderTopColor: '#e9e7e7', borderTopWidth: 1, borderStyle: 'solid', zIndex: 1,borderRadius:0,padding:10,paddingTop:20,height:'100%' }]}>
+     <Text style={[styles.label]}><b>Excel Dosyası Yükleyiniz</b></Text>
       <input
-        style={styles.fileBorder}
-        type="file"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          readExcel(file);
-        }}
-      />
+      style={styles.fileBorder}
+      type="file"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        readExcel(file);
+      }}
+    />
+
+<Text style={[styles.label]}><b>Grubu</b></Text>
+   
+      <SelectList 
+        setSelected={(val) =>  handleInputChange('wg_id', val)} 
+        data={groupData} 
+        save="key"
+        name="wg_id"
+        boxStyles={{borderBottomLeftRadius:0,borderBottomRightRadius:0,borderTopLeftRadius:5,borderTopRightRadius:5}}
+        dropdownStyles={{borderTopLeftRadius:0,borderTopRightRadius:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+    />
+     
+     {subGroupIsActive?
+     <View>
+  <Text style={styles.label}><b>Alt Grubu</b></Text>
+
+    <SelectList 
+      setSelected={(val) =>  handleInputChange('wg_sub_id', val)} 
+      data={groupSubData} 
+      save="key"
+      name="wg_sub_id"
+      boxStyles={{borderBottomLeftRadius:0,borderBottomRightRadius:0,borderTopLeftRadius:5,borderTopRightRadius:5}}
+      dropdownStyles={{borderTopLeftRadius:0,borderTopRightRadius:0,borderBottomLeftRadius:5,borderBottomRightRadius:5}}
+    />
+  </View>
+  :''}
+
       {/* <View style={styles.container}> */}
-        <View style={styles.addItemContainer}>
+        {/* <View style={styles.addItemContainer}>
           {items.length!=0? <FlatList
             data={items}
             renderItem={({ item }) => (
@@ -441,8 +568,13 @@ const ExcelAddItemForm = ({ onBulkAddItems }) => {
             keyExtractor={(item) => item.en}
             style={styles.flatList}
         />:<></>}
-        {/* </View> */}
-        </View>
+        </View> */}
+
+
+        <TouchableOpacity onPress={handleAddItem} style={[styles.addButton, { backgroundColor: 'blue', color: 'white',marginTop:5 }]}>
+     <Text style={[styles.buttonText, { color: 'white' }]}>Kelime Kartlarını Ekle</Text>
+   </TouchableOpacity>
+
     </View>
   );
 };
@@ -468,7 +600,7 @@ const ChatItem = ({ item}) => {
       // onLongPress={() => onItemLongPress(item.id)}
       // onPress={() => onItemPress(item.id)}
   >
-          {item.image!=''?<Image source={{ uri: item.image }} style={styles.avatar} />:<></>}
+          {item.image!=undefined && item.image!=null && item.image!=''?<Image source={{ uri: item.image }} style={styles.avatar} />:<></>}
 
           <View style={styles.listItemContent}>
 
@@ -476,17 +608,17 @@ const ChatItem = ({ item}) => {
               {/* İngilizce kelime kartı */}
               <View style={styles.wordCard}>
                   <View style={styles.wordDetails}>
-                      <Text style={styles.wordText}>{item.en}</Text>
+                      <Text style={styles.wordText}><h3><b>{item.en}</b></h3></Text>
                   </View>
                   <Ionicons name="volume-high" size={24} color="#888" style={styles.soundIcon}  onPress={() => speak(item.en)}/> {/* Ses ikonu */}
               </View>
           {adverbs.length!=0?<View style={styles.wordCard}>
               <View style={styles.wordMains}>
-                  <Text style={styles.wordMain}>Adverbs : </Text>
+                  <Text style={styles.wordMain}><b>Adverbs :</b> </Text>
                   <Text style={styles.wordMain}>
-                  {adverbs.map((m, index) => 
-                      <View key={m.mean}>{m.mean}{index < adverbs.length - 1 ? ',' : ''}</View>
-                  )}
+                      {adverbs.map((m, index) => 
+                          <span key={index}>{m.mean}{index < adverbs.length - 1 ? ' ,' : ' '}</span>
+                      )}
                   </Text>
               </View>
           </View>:<></>}
@@ -494,10 +626,10 @@ const ChatItem = ({ item}) => {
           {nouns.length!=0?
           <View style={styles.wordCard}>
               <View style={styles.wordMains}>
-                  <Text style={styles.wordMain}>Noun : </Text>
+                  <Text style={styles.wordMain}><b>Noun :</b> </Text>
                   <Text style={styles.wordMain}>
                   {nouns.map((m, index) => 
-                      <View key={m.mean}>{m.mean}{index < nouns.length - 1 ? ',' : ''}</View>
+                      <span key={index}>{m.mean}{index < nouns.length - 1 ? ' ,' : ' '}</span>
                   )}
                   </Text>
               </View>
@@ -507,10 +639,10 @@ const ChatItem = ({ item}) => {
           {adjectives.length!=0?
           <View style={styles.wordCard}>
               <View style={styles.wordMains}>
-                  <Text style={styles.wordMain}>Adjective : </Text>
+                  <Text style={styles.wordMain}><b>Adjective :</b> </Text>
                   <Text style={styles.wordMain}>
                   {adjectives.map((m, index) => 
-                      <View key={m.mean}>{m.mean}{index < adjectives.length - 1 ? ',' : ''}</View>
+                     <span key={index}>{m.mean}{index < adjectives.length - 1 ? ' ,' : ' '}</span>
                   )}
                   </Text>
               </View>
@@ -521,10 +653,10 @@ const ChatItem = ({ item}) => {
           {pronouns.length!=0?
           <View style={styles.wordCard}>
               <View style={styles.wordMains}>
-                  <Text style={styles.wordMain}>Pronoun : </Text>
+                  <Text style={styles.wordMain}><b>Pronoun :</b> </Text>
                   <Text style={styles.wordMain}>
                   {pronouns.map((m, index) => 
-                      <View key={m.mean}>{m.mean}{index < pronouns.length - 1 ? ',' : ''}</View>
+                      <span key={index}>{m.mean}{index < pronouns.length - 1 ? ' ,' : ' '}</span>
                   )}
                   </Text>
               </View>
@@ -534,10 +666,10 @@ const ChatItem = ({ item}) => {
           {verbs.length!=0?
           <View style={styles.wordCard}>
               <View style={styles.wordMains}>
-                  <Text style={styles.wordMain}>Verb : </Text>
+                  <Text style={styles.wordMain}><b>Verb :</b> </Text>
                   <Text style={styles.wordMain}>
                   {verbs.map((m, index) => 
-                      <View key={m.mean}>{m.mean}{index < verbs.length - 1 ? ',' : ''}</View>
+                      <span key={index}>{m.mean}{index < verbs.length - 1 ? ' ,' : ' '}</span>
                   )}
                   </Text>
               </View>
@@ -547,7 +679,7 @@ const ChatItem = ({ item}) => {
           {item.examples.length!=0?
          <View style={[styles.wordCard, { backgroundColor: '#b4e0ff', borderRadius: 5, marginTop: 4, textAlign: "center" }]}>
               <View >
-                  <Text style={{ textAlign: "left",marginTop:4,marginBottom:4,marginLeft:10 }}>Examples :</Text>
+                  <Text style={{ textAlign: "left",marginTop:4,marginBottom:4,marginLeft:10 }}><b>Examples :</b></Text>
                   {item.examples.map((m, index) => (
                       <View style={[styles.wordMains,{marginTop:4,marginBottom:4,marginLeft:10}]} key={index}>
                           <FontAwesome name="circle" size={10} color="#000" style={{ marginRight: 5 }} /> {/* Nokta ikonu */}
@@ -623,6 +755,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Yazıları yatayda sıralamak için
     flexWrap: 'wrap',
     marginLeft: 10,
+    width:'100%'
   },
   wordMain: {
     marginRight: 5,       // Yazılar arasına boşluk bırakmak için
